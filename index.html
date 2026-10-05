@@ -36,17 +36,7 @@ footer{text-align:center;color:#9ca3af;font-size:11px;padding:10px 0 30px}
 </main></div>
 <script>
 const members=["ALL","RM","JIN","SUGA","J-HOPE","JIMIN","V","JUNG KOOK"];
-const news=[
-{m:"ALL",d:"2026-10-04",s:"Billboard",t:"BTS、ARIRANGワールドツアーの舞台裏映像を公開",x:"ステージの裏側やメンバーの様子を収めた36分のビハインド映像が話題に。",u:"https://www.billboard.com/music/music-news/bts-behind-the-scenes-arirang-tour-video-1236351852/"},
-{m:"ALL",d:"2026-10-04",s:"Latin Times",t:"BTS、ラテンアメリカ公演へ。5か国14公演の大型ツアー",x:"ボゴタを皮切りに、ペルー、チリ、アルゼンチン、ブラジルを巡るARIRANGツアーがスタート。",u:"https://www.latintimes.com/bts-takes-latin-america-storm-14-shows-five-countries-historic-october-599755"},
-{m:"RM",d:"2026-10-03",s:"SFMOMA",t:"RM x SFMOMA『Between You and Me』展が開幕",x:"RMの個人コレクションとSFMOMAの所蔵作品を組み合わせた大規模展覧会。2027年2月7日まで。",u:"https://www.sfmoma.org/exhibition/rm-x-sfmoma/"},
-{m:"RM",d:"2026-10-03",s:"Weverse",t:"RM x SFMOMA展の公式案内",x:"RMが企画した特別展示についてHYBE/Weverseから公式案内。",u:"https://weverse.io/bts/notice/30114?hl=ja"},
-{m:"JUNG KOOK",d:"2026-10-02",s:"Livedoor / スポーツソウル日本版",t:"JUNG KOOK、日本でのオフショットを公開",x:"東京で撮影した自然体の写真をSNSに投稿。Vも反応したと報じられています。",u:"https://news.livedoor.com/article/detail/32470491/"},
-{m:"JUNG KOOK",d:"2026-10-02",s:"THE FIRST TIMES",t:"JUNG KOOKの東京・富ヶ谷でのプライベートショットが話題",x:"日本滞在中の姿を扱った最新記事。",u:"https://www.thefirsttimes.jp/keywords/5677/"},
-{m:"JIN",d:"2026-10-01",s:"THE FIRST TIMES",t:"JINの新しいヘアスタイルが話題に",x:"Vとのやり取りなど、最近のJINに関する記事。",u:"https://www.thefirsttimes.jp/keywords/5677/"},
-{m:"ALL",d:"2026-10-02",s:"BTS JAPAN OFFICIAL",t:"『BTS WORLD TOUR ARIRANG IN JAPAN』Blu-ray発売決定",x:"10月2日より予約販売開始。Digital CodeやLive only Editionも発表。",u:"https://bts-official.jp/news/?search=ARIRANG"},
-{m:"ALL",d:"2026-10-01",s:"BTS JAPAN OFFICIAL",t:"高雄公演ライブビューイング開催決定",x:"11月21日の高雄公演を日本で楽しめるライブビューイングが決定。",u:"https://bts-official.jp/news/?search=ARIRANG"}
-];
+let news=[];
 const tabs=document.getElementById("tabs"), newsEl=document.getElementById("news"), search=document.getElementById("search"), period=document.getElementById("period"), status=document.getElementById("status");
 let current=["ALL"];
 
@@ -85,7 +75,7 @@ members.forEach(m=>{
 function render(){
  const q=search.value.toLowerCase(),
        days=period.value==="all"?9999:+period.value,
-       now=new Date("2026-10-05T00:00:00+09:00");
+       now=new Date();
 
  let list=news
  .filter(n=>current.includes("ALL") ? true : current.includes(n.m))
@@ -97,7 +87,25 @@ function render(){
  newsEl.innerHTML=list.length?list.map(n=>`<article class="card"><span class="badge">${n.m}</span><h2>${esc(n.t)}</h2><div class="meta">${n.s} ・ ${n.d}</div><div class="desc">${esc(n.x)}</div><a href="${n.u}" target="_blank" rel="noopener">記事を読む →</a></article>`).join(""):`<div class="empty">該当するニュースがありません。</div>`;
 }
 function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-search.oninput=render;period.onchange=render;render();
+search.oninput=render;
+period.onchange=render;
+
+async function loadNews(){
+  status.textContent="ニュースを読み込み中…";
+  try{
+    const res=await fetch(`news.json?v=${Date.now()}`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    news=await res.json();
+    render();
+  }catch(err){
+    console.error(err);
+    status.textContent="ニュースの読み込みに失敗しました。少し時間をおいて再読み込みしてください。";
+    newsEl.innerHTML='<div class="empty">ニュースを取得できませんでした。</div>';
+  }
+}
+
+loadNews();
+
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
 </script>
 </body></html>

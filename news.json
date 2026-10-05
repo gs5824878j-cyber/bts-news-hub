@@ -1,0 +1,10 @@
+[
+  {
+    "m": "ALL",
+    "d": "2026-10-05",
+    "s": "BTS NEWS HUB",
+    "t": "自動ニュース取得を準備しました",
+    "x": "GitHub Actionsを手動実行すると、最新のBTSニュースに自動で置き換わります。",
+    "u": "https://news.google.com/"
+  }
+]
