@@ -106,6 +106,15 @@ async function loadNews(){
 
 loadNews();
 
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+if("serviceWorker" in navigator){
+  window.addEventListener("load", async ()=>{
+    try{
+      const reg = await navigator.serviceWorker.register("sw.js?v=5", {updateViaCache:"none"});
+      await reg.update();
+    }catch(e){
+      console.error("Service Worker update failed", e);
+    }
+  });
+}
 </script>
 </body></html>
