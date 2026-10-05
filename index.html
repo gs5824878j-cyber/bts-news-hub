@@ -48,15 +48,52 @@ const news=[
 {m:"ALL",d:"2026-10-01",s:"BTS JAPAN OFFICIAL",t:"高雄公演ライブビューイング開催決定",x:"11月21日の高雄公演を日本で楽しめるライブビューイングが決定。",u:"https://bts-official.jp/news/?search=ARIRANG"}
 ];
 const tabs=document.getElementById("tabs"), newsEl=document.getElementById("news"), search=document.getElementById("search"), period=document.getElementById("period"), status=document.getElementById("status");
-let current="ALL";
-members.forEach(m=>{const b=document.createElement("button");b.className="tab"+(m==="ALL"?" active":"");b.textContent=m;b.onclick=()=>{current=m;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()};tabs.appendChild(b)});
+let current=["ALL"];
+
+members.forEach(m=>{
+ const b=document.createElement("button");
+ b.className="tab"+(m==="ALL"?" active":"");
+ b.textContent=m;
+
+ b.onclick=()=>{
+   if(m==="ALL"){
+     current=["ALL"];
+   }else{
+     current=current.filter(x=>x!=="ALL");
+
+     if(current.includes(m)){
+       current=current.filter(x=>x!==m);
+     }else{
+       current.push(m);
+     }
+
+     if(!current.length){
+       current=["ALL"];
+     }
+   }
+
+   document.querySelectorAll(".tab").forEach(x=>{
+     x.classList.toggle("active",current.includes(x.textContent));
+   });
+
+   render();
+ };
+
+ tabs.appendChild(b);
+});
+
 function render(){
- const q=search.value.toLowerCase(), days=period.value==="all"?9999:+period.value, now=new Date("2026-10-05T00:00:00+09:00");
- let list=news.filter(n=>(current==="ALL"?true:n.m===current)||(current!=="ALL"&&n.m==="ALL"))
+ const q=search.value.toLowerCase(),
+       days=period.value==="all"?9999:+period.value,
+       now=new Date("2026-10-05T00:00:00+09:00");
+
+ let list=news
+ .filter(n=>current.includes("ALL") ? true : current.includes(n.m))
  .filter(n=>n.t.toLowerCase().includes(q)||n.x.toLowerCase().includes(q)||n.s.toLowerCase().includes(q))
  .filter(n=>(now-new Date(n.d+"T00:00:00+09:00"))/86400000<=days)
  .sort((a,b)=>b.d.localeCompare(a.d));
- status.textContent=`${current==="ALL"?"BTS全体":current}　${list.length}件`;
+
+ status.textContent=`${current.includes("ALL")?"BTS全体":current.join(" + ")}　${list.length}件`;
  newsEl.innerHTML=list.length?list.map(n=>`<article class="card"><span class="badge">${n.m}</span><h2>${esc(n.t)}</h2><div class="meta">${n.s} ・ ${n.d}</div><div class="desc">${esc(n.x)}</div><a href="${n.u}" target="_blank" rel="noopener">記事を読む →</a></article>`).join(""):`<div class="empty">該当するニュースがありません。</div>`;
 }
 function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
