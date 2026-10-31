@@ -151,6 +151,9 @@ def main():
     for item in items:
         item.pop("_ts", None)
 
+    if not items or failures:
+        raise RuntimeError("Incomplete news fetch; keeping previous news.json. " + "; ".join(failures))
+
     OUTPUT.write_text(
         json.dumps(items, ensure_ascii=False, indent=2),
         encoding="utf-8"
