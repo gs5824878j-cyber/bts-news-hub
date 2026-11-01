@@ -1,4 +1,4 @@
-const CACHE = "bts-news-v5";
+const CACHE = "bts-news-v6";
 
 const STATIC_FILES = [
   "./manifest.webmanifest"
@@ -17,7 +17,7 @@ self.addEventListener("activate", event => {
       caches.keys().then(keys =>
         Promise.all(
           keys
-            .filter(key => key !== CACHE)
+            .filter(key => key.startsWith("bts-news-") && key !== CACHE)
             .map(key => caches.delete(key))
         )
       ),
